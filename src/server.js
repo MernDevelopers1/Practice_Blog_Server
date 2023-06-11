@@ -1,8 +1,9 @@
 import express from "express";
 import {db,dbconnection} from "./db.js";
+import cors from 'cors'
 const app = express();
 app.use(express.json());
-
+app.use(cors());
 app.get('/api/articles/:name',async (req,res)=>{
     const {name} = req.params;
 
@@ -26,7 +27,7 @@ app.put("/api/articles/:name/upvote",async (req,res)=>{
     const article = await db.collection('articles').findOne({name});
     if(article){
         
-        res.send(`Article ${article.name} increased to ${article.upvotes} upvotes`);
+        res.json(article);
     }else{
         res.send('Article is not exist!');
     }
@@ -36,12 +37,12 @@ app.post("/api/articles/:name/comment",async (req,res)=>{
     const {postedBy,text} = req.body;
     
     await db.collection('articles').updateOne({name},{
-        $push:{comments:{postedBy,text}}
+        $push:{comment:{postedBy,text}}
     });
     const article = await db.collection('articles').findOne({name});
     if(article){
-        article.comment.push({postedBy,text});
-        res.send(article.comment);
+        // article.comment.push({postedBy,text});
+        res.json(article);
     }else{
         res.send("Article don't exist!");
     }
